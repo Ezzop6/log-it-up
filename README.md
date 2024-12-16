@@ -12,12 +12,6 @@ pip install -r requirements.txt
 python3 src/main.py
 ```
 
-# For testing start flask server and adjust config.yaml
-
-```bash
-python3 testing_endpoint.py
-```
-
 # TODO
 
 - [ ] Observer for logs ?
