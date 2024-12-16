@@ -1,0 +1,8 @@
+# Temporary files
+/venv
+__pycache__
+.mypy_cache
+
+config.yaml
+scrap.*
+.vscode

@@ -1,0 +1,82 @@
+global_config:
+  log_level: DEBUG # Option DEBUG | INFO | WARNING | ERROR | CRITICAL
+  ignore_repeated_errors: False # Default is False
+  disabled_collectors_types: # Optional This will disable the collectors of the given types
+    - custom_script
+    - bash_script
+
+forwarders:
+  - name: local # Local DB is Required at the moment
+    type: local_db # Local DB is Required at the moment
+
+  - type: https
+    name: jokelogs
+    data_formatter: axiom_data_formatter.py # Path to the python file to format the data before sending Can by absolute or relative to src/data_formatters
+    url: http://0.0.0.0:5000/data-list-endpoint # URL to send the data
+    batch_size: 250 # Number of logs to send in a single request
+    payload_size: 1000000 # Size of the payload in bytes
+    environment_details: # Optional details about the environment
+      environment: production
+      dataset: aperture
+      key: value
+
+    headers:
+      Content-Type: application/json
+      Authorization: Bearer <token>
+
+  - type: https
+    url: https://https-endpoint.com/logs
+    authentication:
+      type: basic
+      username: user
+      password: pass
+    headers:
+      Content-Type: application/json
+
+  - type: http
+    url: http://0.0.0.0:5000/data-list-endpoint
+
+collectors:
+  - type: logs
+    name: syslog # This work like ID for the collector and must be unique
+    send_interval: 20s # Option 1s, 1m, 1h, 1d, 1w, 1y, ( auto Not implemented yet )
+    match_pattern: GLOB # Option GLOB | REGEX | EXACT default: GLOB
+    full_file: False # Option True | False default: False (If True the whole file will be sent in the first run)
+    paths:
+      - /var/log/*.log
+
+  - type: logs
+    name: jokelog
+    send_interval: 2s # Option 1s, 1m, 1h, 1d, 1w, 1y, auto
+    paths:
+      - /var/log/bootstrap.log
+      - /var/log/dpkg.log
+      - /var/log/gpu-manager-switch.log
+      - /var/log/alternatives.log
+      - /var/log/gpu-manager.log
+      - /var/log/ubuntu-advantage.log
+      - /var/log/fontconfig.log
+
+  - type: bash
+    name: uptime-bash
+    send_interval: 4s
+    command: uptime
+
+  - type: bash
+    name: disk info
+    send_interval: 1m
+    command: df -h | grep /dev/nvme0n1p2
+
+  - type: bash_script # Not implemented yet but working in progress
+    name: uptime-bash-script
+    send_interval: 15s
+    script_path: /path/to/script.sh
+    args:
+      - arg1
+      - arg2
+
+  - type: custom_script # Not implemented yet maybe in the future probably not
+    name: custom-script
+    send_interval: 33s
+    interpreter_path: /path/to/interpreter
+    script_path: /path/to/script.sh
